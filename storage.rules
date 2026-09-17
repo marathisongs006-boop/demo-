@@ -1,0 +1,32 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function for authorized admin UIDs
+    function isAuthorizedAdmin() {
+      return request.auth != null && (
+        request.auth.uid == "n66vwcTu3OZVvPvqTOAmjSq8xSz1" ||
+        request.auth.uid == "gVWdJNbS5WVqcUqYc2KC4P0HrR32"
+      );
+    }
+
+    // Public read for website assets, write/delete strictly restricted to authorized admin UID
+    match /profile/{allPaths=**} {
+      allow read: if true;
+      allow write, delete: if isAuthorizedAdmin()
+                           && request.resource.size < 15 * 1024 * 1024;
+    }
+
+    match /projects/{allPaths=**} {
+      allow read: if true;
+      allow write, delete: if isAuthorizedAdmin()
+                           && request.resource.size < 15 * 1024 * 1024;
+    }
+
+    match /resumes/{allPaths=**} {
+      allow read: if true;
+      allow write, delete: if isAuthorizedAdmin()
+                           && request.resource.size < 15 * 1024 * 1024;
+    }
+  }
+}
