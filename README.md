@@ -1,44 +1,61 @@
-# Vinayak Padole Portfolio — Firebase Production Architecture
+﻿# Vinayak Padole Portfolio — Firebase + Vercel Production Architecture
 
-## 🚀 Firebase Configuration
-- **Project ID**: `vinayak006-1a9fb`
-- **Authorized Admin UID**: `gVWdJNbS5WVqcUqYc2KC4P0HrR32`
-- **Storage Bucket**: `vinayak006-1a9fb.firebasestorage.app`
+## 🚀 Production Stack
+
+| Layer       | Technology                                      |
+|-------------|------------------------------------------------|
+| Frontend    | React 18 + Vite + TypeScript + Tailwind CSS    |
+| Database    | Firebase Cloud Firestore                        |
+| Auth        | Firebase Authentication                         |
+| Storage     | Firebase Storage (images & resumes)             |
+| Hosting     | Vercel (static SPA deployment)                 |
 
 ---
 
 ## 🔒 Security Architecture
+
 - **Authentication**: Firebase Authentication with session persistence.
-- **Admin Guard**: Strictly enforces `user.uid === "gVWdJNbS5WVqcUqYc2KC4P0HrR32"`. Any other UID is immediately denied access.
+- **Admin Guard**: Strictly enforces authorized UID check. Any other UID is denied access.
 - **Database**: Cloud Firestore is the single source of truth for all editable content.
 - **Storage**: Firebase Storage for media and resumes with cleanup on deletion.
 - **Rules**: `firestore.rules` and `storage.rules` included in root.
+- **No secrets committed**: `.env` is in `.gitignore`. Firebase client config is safe to commit (Firebase Web SDK design).
+
+---
+
+## 🌐 Vercel Deployment
+
+### Build Config (vercel.json)
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **SPA Rewrites**: All routes rewrite to `/index.html` (React Router BrowserRouter support)
+
+### Deploy Steps
+1. Push this repository to GitHub.
+2. Import into Vercel → Select repository.
+3. Vercel auto-detects Vite framework.
+4. Click **Deploy** — no environment variables needed (Firebase config is in `src/firebase/config.ts`).
 
 ---
 
 ## 🗄️ Firestore Collections Structure
-1. `/profile/default` — Full name, title, bio, contact details, availability toggle, portrait URL & resume URL.
-2. `/skills/{id}` — Skill name, percentage, category, icon, featured, visible, sortOrder.
-3. `/projects/{id}` — Project title, slug, description, fullDescription, technologies, demo/github URLs, thumbnailUrl, storagePath, featured, visible.
-4. `/experience/{id}` — Role, company, dates, current flag, description, visible.
-5. `/services/{id}` — Service title, description, icon, visible.
-6. `/socialLinks/{id}` — Dynamic platforms (WhatsApp, LinkedIn, GitHub, etc.), URLs, visibility toggle.
-7. `/siteSettings/default` — Browser title, SEO meta description, accent color, theme mode, copyright.
-8. `/contactMessages/{id}` — Public contact form submissions with server timestamps.
+
+| Collection          | Document ID | Purpose                                                            |
+|---------------------|-------------|--------------------------------------------------------------------|
+| `/profile`          | `default`   | Full name, title, bio, contact details, portrait URL & resume URL  |
+| `/skills/{id}`      | Auto        | Skill name, percentage, category, icon, featured, visible         |
+| `/projects/{id}`    | Auto        | Project title, description, tech stack, URLs, thumbnail, visible  |
+| `/experience/{id}`  | Auto        | Role, company, dates, current flag, description, visible          |
+| `/services/{id}`    | Auto        | Service title, description, icon, visible                          |
+| `/socialLinks/{id}` | Auto        | Dynamic platforms (WhatsApp, LinkedIn, GitHub, etc.), visibility   |
+| `/siteSettings`     | `default`   | Browser title, SEO meta description, accent color, copyright       |
+| `/contactMessages`  | Auto        | Public contact form submissions with server timestamps            |
 
 ---
 
-## 📋 One-Time Firebase Console Steps
-1. **Enable Cloud Firestore**:
-   - Go to [Firebase Console](https://console.firebase.google.com/project/vinayak006-1a9fb/firestore) ➔ Click **Create database** ➔ Select production mode ➔ Select your region.
-   - Paste rules from `firestore.rules` into the **Rules** tab.
-2. **Enable Firebase Storage**:
-   - Go to [Firebase Console Storage](https://console.firebase.google.com/project/vinayak006-1a9fb/storage) ➔ Click **Get started**.
-   - Paste rules from `storage.rules` into the **Rules** tab.
-3. **Enable Firebase Email/Password Auth**:
-   - Go to [Firebase Console Authentication](https://console.firebase.google.com/project/vinayak006-1a9fb/authentication) ➔ Sign-in method ➔ Enable **Email/Password**.
-   - Ensure the user with UID `gVWdJNbS5WVqcUqYc2KC4P0HrR32` is created.
-4. **Run Data Migration**:
-   ```bash
-   node scripts/migrate-to-firebase.js
-   ```
+## 📋 Firebase Console Setup
+
+1. **Enable Cloud Firestore** → Paste rules from `firestore.rules`.
+2. **Enable Firebase Storage** → Paste rules from `storage.rules`.
+3. **Enable Firebase Email/Password Auth** → Create admin user.
+4. **Run Data Migration** (one-time): `node scripts/migrate-to-firebase.js`

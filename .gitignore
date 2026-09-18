@@ -21,7 +21,7 @@ build/
 *serviceAccount*.json
 *credentials*.json
 
-# Local storage and temporary data
+# Local storage and temporary data (legacy - not used in production)
 server/data.json
 uploads/
 test-api.js
